@@ -1,0 +1,182 @@
+[
+  {
+    "id": "T-1001",
+    "title": "User cannot login after password reset",
+    "description": "Customer reports being completely locked out of their account after using the forgot password link. They received the reset email, clicked the link, set a new password, but still cannot login. Getting invalid credentials error.",
+    "category": "Authentication",
+    "priority": "high",
+    "resolution": "The issue was caused by an expired session token that wasn't cleared after password reset. Steps taken: 1) Cleared all active sessions for the user, 2) Regenerated auth token, 3) Asked user to clear browser cache and cookies, 4) User successfully logged in using incognito browser first, then normal browser after cache clear.",
+    "resolvedAt": "2024-01-15"
+  },
+  {
+    "id": "T-1002",
+    "title": "Payment failing at checkout",
+    "description": "Customer is unable to complete purchase. Payment keeps getting declined even though they confirmed with their bank that the card is active and has sufficient funds. Error message shows payment gateway timeout.",
+    "category": "Payment",
+    "priority": "high",
+    "resolution": "Issue was a timeout problem with the payment gateway. Steps taken: 1) Checked payment gateway logs and found intermittent timeout errors, 2) Asked customer to try a different browser, 3) Cleared the cart and re-added items, 4) Payment went through successfully on retry. Escalated timeout issue to payment gateway provider.",
+    "resolvedAt": "2024-01-16"
+  },
+  {
+    "id": "T-1003",
+    "title": "Not receiving email notifications",
+    "description": "User says they stopped receiving order confirmation emails and shipping notifications about a week ago. They checked spam folder but nothing there either. Other users in same company are receiving emails fine.",
+    "category": "Email",
+    "priority": "medium",
+    "resolution": "Found that the user had accidentally unsubscribed from transactional emails. Steps taken: 1) Checked email preference settings in admin panel, 2) Found transactional emails were disabled for this specific user, 3) Re-enabled email notifications, 4) Sent test email which was received successfully. Advised user to whitelist our domain.",
+    "resolvedAt": "2024-01-17"
+  },
+  {
+    "id": "T-1004",
+    "title": "App extremely slow to load",
+    "description": "Multiple users from the same company reporting that the dashboard takes over 30 seconds to load. This started happening after they imported a large dataset last week. Other companies are not affected.",
+    "category": "Performance",
+    "priority": "high",
+    "resolution": "The large data import created unindexed records causing slow queries. Steps taken: 1) Identified slow database queries using query analyzer, 2) Found missing indexes on the imported data tables, 3) Added appropriate indexes, 4) Cleared application cache, 5) Dashboard load time reduced from 30s to under 2s. Advised customer to contact us before future large imports.",
+    "resolvedAt": "2024-01-18"
+  },
+  {
+    "id": "T-1005",
+    "title": "API integration returning 401 unauthorized",
+    "description": "Developer reports that their API integration suddenly stopped working overnight. All API calls are returning 401 unauthorized errors. They haven't made any changes to their code. Was working fine for 3 months.",
+    "category": "API",
+    "priority": "high",
+    "resolution": "The API key had expired as per the 90-day rotation policy that was recently implemented. Steps taken: 1) Confirmed API key expiry date in developer portal, 2) Generated new API key for the customer, 3) Sent new key securely via encrypted email, 4) Developer updated their code and confirmed everything working, 5) Added reminder system for API key expiry notifications.",
+    "resolvedAt": "2024-01-19"
+  },
+  {
+    "id": "T-1006",
+    "title": "Cannot export data to CSV",
+    "description": "User is trying to export their reports to CSV but the download never starts. They click the export button, see a loading spinner for a few seconds, then nothing happens. No error message shown.",
+    "category": "Export",
+    "priority": "medium",
+    "resolution": "Browser was silently blocking the file download due to popup blocker settings. Steps taken: 1) Asked user to check browser console for errors, 2) Found download was being blocked by browser, 3) Guided user to allow downloads from our domain in browser settings, 4) Export worked immediately after. Added a user-facing error message to our export feature to catch this case in future.",
+    "resolvedAt": "2024-01-20"
+  },
+  {
+    "id": "T-1007",
+    "title": "Two factor authentication codes not working",
+    "description": "User cannot login because their 2FA codes from Google Authenticator are always rejected. This started happening after they got a new phone and set up Google Authenticator again.",
+    "category": "Authentication",
+    "priority": "high",
+    "resolution": "The time on the user's new phone was slightly out of sync causing 2FA codes to be invalid. Steps taken: 1) Verified the issue was time sync related, 2) Asked user to enable automatic time sync on their phone in date/time settings, 3) Once time was synced, existing 2FA codes started working, 4) No need to reset 2FA. Documented this as a known issue for support team.",
+    "resolvedAt": "2024-01-21"
+  },
+  {
+    "id": "T-1008",
+    "title": "Subscription not upgrading after payment",
+    "description": "Customer paid for premium plan upgrade but their account still shows free plan. Payment was confirmed by their bank and they have the transaction receipt. This happened 2 days ago and they have been waiting.",
+    "category": "Payment",
+    "priority": "high",
+    "resolution": "Webhook from payment provider failed to reach our server due to a temporary network issue, so the subscription upgrade was never triggered. Steps taken: 1) Found failed webhook in payment provider dashboard, 2) Manually triggered the subscription upgrade in admin panel, 3) Confirmed customer account now shows premium plan, 4) Apologized for delay and added 7 days free to their subscription, 5) Set up webhook failure alerting to catch this faster in future.",
+    "resolvedAt": "2024-01-22"
+  },
+  {
+    "id": "T-1009",
+    "title": "Mobile app crashing on startup",
+    "description": "User reports that the mobile app crashes immediately after the splash screen on their iPhone. They tried uninstalling and reinstalling but same issue. Other users on same iOS version are not affected.",
+    "category": "Mobile",
+    "priority": "high",
+    "resolution": "Corrupted local cache files were causing the crash on startup. Steps taken: 1) Asked user to go to iPhone Settings, find our app, and clear app data, 2) User said there was no clear data option, 3) Guided user to offload the app instead of delete which clears cache but keeps data, 4) User reinstalled and app launched successfully, 5) Logged as potential bug for mobile team to add better cache corruption handling.",
+    "resolvedAt": "2024-01-23"
+  },
+  {
+    "id": "T-1010",
+    "title": "Team members cannot be added to account",
+    "description": "Admin user is trying to invite new team members but the invite emails are never received. The admin can see the invitations as pending in their dashboard but invitees never get the email.",
+    "category": "Email",
+    "priority": "medium",
+    "resolution": "The company email domain had strict SPF and DKIM filtering that was blocking our invitation emails. Steps taken: 1) Checked email delivery logs and found emails were being rejected at recipient server, 2) Identified SPF record mismatch, 3) Provided customer IT team with our SPF and DKIM records to whitelist, 4) IT team updated their email filters, 5) Test invitation email received successfully.",
+    "resolvedAt": "2024-01-24"
+  },
+  {
+    "id": "T-1011",
+    "title": "Dashboard showing wrong data after timezone change",
+    "description": "User changed their account timezone from UTC to IST and now all their historical reports and charts are showing incorrect dates. Events that happened today are showing as yesterday.",
+    "category": "Performance",
+    "priority": "medium",
+    "resolution": "Timezone change affects how stored UTC timestamps are displayed but a caching issue was preventing the new timezone from being applied to already-loaded dashboard data. Steps taken: 1) Confirmed this was a known display bug with timezone changes, 2) Asked user to hard refresh the dashboard with Ctrl+Shift+R, 3) Cleared server-side cache for the user session, 4) Data displayed correctly after refresh. Logged bug ticket for engineering to fix timezone cache invalidation.",
+    "resolvedAt": "2024-01-25"
+  },
+  {
+    "id": "T-1012",
+    "title": "API rate limit being hit unexpectedly",
+    "description": "Customer says their integration is hitting API rate limits even though they are on the enterprise plan which should have unlimited requests. Started happening after they deployed a new version of their application.",
+    "category": "API",
+    "priority": "high",
+    "resolution": "Their new application version had a bug causing API calls to be made in a loop under certain conditions, hitting the rate limit quickly even for enterprise plans. Steps taken: 1) Pulled API call logs for their account, 2) Identified unusual spike pattern consistent with a loop, 3) Shared logs with customer developer, 4) Developer identified the bug in their code — a missing break condition in a retry loop, 5) They deployed a fix and rate limit errors stopped immediately.",
+    "resolvedAt": "2024-01-26"
+  },
+  {
+    "id": "T-1013",
+    "title": "Single sign on SSO not working with Okta",
+    "description": "Enterprise customer recently set up Okta SSO integration but users are getting a SAML assertion error when trying to login through Okta. Direct login still works fine.",
+    "category": "Authentication",
+    "priority": "high",
+    "resolution": "The SAML assertion was using wrong attribute mapping for email field. Steps taken: 1) Asked customer to share SAML configuration from Okta, 2) Found that email attribute was mapped as emailAddress instead of email which our system expects, 3) Customer IT team corrected the attribute mapping in Okta, 4) SSO login tested and working for all users, 5) Shared our SAML configuration guide to prevent similar issues.",
+    "resolvedAt": "2024-01-27"
+  },
+  {
+    "id": "T-1014",
+    "title": "Bulk import failing for large files",
+    "description": "Customer is trying to import 50,000 records via CSV but the import always fails at around 30,000 records with a timeout error. Smaller files under 10,000 records work fine.",
+    "category": "Export",
+    "priority": "medium",
+    "resolution": "Import process was hitting a 5 minute server timeout for large files. Steps taken: 1) Confirmed the timeout limit and file size, 2) Split the 50,000 record file into 5 files of 10,000 records each, 3) Imported each file separately successfully, 4) All 50,000 records imported correctly, 5) Raised engineering ticket to implement background job processing for large imports to remove timeout limitation.",
+    "resolvedAt": "2024-01-28"
+  },
+  {
+    "id": "T-1015",
+    "title": "Mobile app not syncing data when offline",
+    "description": "User works in areas with poor connectivity and expects the app to sync data when they come back online. But changes made offline are being lost and not syncing to the server when internet is restored.",
+    "category": "Mobile",
+    "priority": "medium",
+    "resolution": "Offline sync feature requires it to be explicitly enabled in app settings and it was disabled by default. Steps taken: 1) Asked user to go to app Settings and look for Offline Mode option, 2) User found and enabled offline sync, 3) Tested by making changes in airplane mode then reconnecting, 4) Data synced successfully, 5) Feedback noted that offline mode should be more prominently explained during onboarding.",
+    "resolvedAt": "2024-01-29"
+  },
+  {
+    "id": "T-1016",
+    "title": "Webhook events not being delivered",
+    "description": "Developer set up webhooks to receive real time events but their endpoint is not receiving any events even though actions are being triggered in the system. Webhook URL is correct and endpoint is publicly accessible.",
+    "category": "API",
+    "priority": "high",
+    "resolution": "Webhook delivery was failing silently because the customer endpoint was returning 500 errors which caused our system to mark it as inactive after 10 failed attempts. Steps taken: 1) Checked webhook delivery logs in admin panel, 2) Found endpoint was marked inactive due to repeated 500 errors, 3) Customer fixed the bug in their endpoint code, 4) Re-enabled webhook in dashboard, 5) Test event delivered successfully, 6) Advised customer to monitor webhook delivery logs regularly.",
+    "resolvedAt": "2024-01-30"
+  },
+  {
+    "id": "T-1017",
+    "title": "Reports not showing data for date range",
+    "description": "User is generating a monthly report for December but the report shows no data even though they can see the records in their dashboard. Tried multiple times with same result.",
+    "category": "Performance",
+    "priority": "medium",
+    "resolution": "Date range filter in reports was using local timezone but data was stored in UTC causing a mismatch for certain timezone offsets. Steps taken: 1) Reproduced the issue by checking user timezone setting which was GMT+5:30, 2) Found that December 1st in IST starts at November 30th 18:30 UTC causing data to fall outside selected range, 3) Applied a hotfix to convert date range to UTC before querying, 4) Report generated correctly with all December data, 5) Permanent fix deployed in next release.",
+    "resolvedAt": "2024-01-31"
+  },
+  {
+    "id": "T-1018",
+    "title": "Cannot reset password email never arrives",
+    "description": "Multiple users from different companies reporting that password reset emails are not being received. Issue started today and is affecting all users not just one specific account.",
+    "category": "Email",
+    "priority": "high",
+    "resolution": "Our email service provider was experiencing an outage affecting transactional email delivery. Steps taken: 1) Checked email provider status page and confirmed ongoing incident, 2) Posted status update on our status page, 3) Communicated to affected users via in-app notification, 4) Once provider resolved their outage after 2 hours, queued emails were delivered, 5) Evaluated backup email provider to prevent single point of failure.",
+    "resolvedAt": "2024-02-01"
+  },
+  {
+    "id": "T-1019",
+    "title": "Account locked after too many login attempts",
+    "description": "User says their account got locked because they forgot their password and tried too many times. They cannot use forgot password because the reset email is also going to an old email address they no longer have access to.",
+    "category": "Authentication",
+    "priority": "medium",
+    "resolution": "Steps taken: 1) Verified user identity through security questions and last known billing information, 2) Unlocked the account in admin panel, 3) Updated email address to their new email after identity verification, 4) Sent password reset to new email address, 5) User successfully logged in, 6) Advised user to keep recovery email up to date.",
+    "resolvedAt": "2024-02-02"
+  },
+  {
+    "id": "T-1020",
+    "title": "Duplicate charges on credit card",
+    "description": "Customer is seeing two identical charges on their credit card for the same subscription month. They were only supposed to be charged once. Requesting refund for duplicate charge.",
+    "category": "Payment",
+    "priority": "high",
+    "resolution": "A payment retry logic bug caused double charging when the first payment succeeded but the confirmation response timed out. Steps taken: 1) Verified both charges in payment gateway dashboard, 2) Confirmed it was a genuine duplicate charge, 3) Issued immediate refund for duplicate charge, 4) Apologized to customer and added one month free to their subscription, 5) Identified and fixed the payment retry bug in code, 6) Audited last 30 days for any other affected customers.",
+    "resolvedAt": "2024-02-03"
+  }
+]
