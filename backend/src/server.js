@@ -3,6 +3,7 @@
 import express from 'express'
 import cors from 'cors'
 import env from './config/env.js'
+import { connectDB } from './config/database.js'
 
 // Import all routes
 import ticketRoute from './routes/ticket.route.js'
@@ -14,6 +15,7 @@ import { clearHistory } from './services/chain.js'
 // STEP 1 — Create Express app
 // ─────────────────────────────────────────
 const app = express()
+
 app.use(cors())
 
 // ─────────────────────────────────────────
@@ -92,16 +94,20 @@ app.use((req, res) => {
 })
 
 // ─────────────────────────────────────────
-// STEP 8 — Start the server
+// Connect to MongoDB THEN start server
 // ─────────────────────────────────────────
-app.listen(env.port, () => {
-    console.log('\n🚀 Server is running!')
-    console.log(`📡 URL: http://localhost:${env.port}`)
-    console.log('\nAvailable endpoints:')
-    console.log(`  POST   http://localhost:${env.port}/api/ticket/analyze`)
-    console.log(`  POST   http://localhost:${env.port}/api/feedback`)
-    console.log(`  GET    http://localhost:${env.port}/api/feedback/stats`)
-    console.log(`  POST   http://localhost:${env.port}/api/ingest`)
-    console.log(`  GET    http://localhost:${env.port}/api/health`)
-    console.log(`  DELETE http://localhost:${env.port}/api/history/:sessionId`)
+// We wait for DB connection before accepting requests
+// This prevents requests coming in before DB is ready
+connectDB().then(() => {
+    app.listen(env.port, () => {
+        console.log('\n🚀 Server is running!')
+        console.log(`📡 URL: http://localhost:${env.port}`)
+        console.log('\nAvailable endpoints:')
+        console.log(`  POST   http://localhost:${env.port}/api/ticket/analyze`)
+        console.log(`  POST   http://localhost:${env.port}/api/feedback`)
+        console.log(`  GET    http://localhost:${env.port}/api/feedback/stats`)
+        console.log(`  POST   http://localhost:${env.port}/api/ingest`)
+        console.log(`  GET    http://localhost:${env.port}/api/health`)
+        console.log(`  DELETE http://localhost:${env.port}/api/history/:sessionId`)
+    })
 })

@@ -8,12 +8,15 @@ const env = {
     geminiApiKey: process.env.GEMINI_API_KEY,
     pineconeApiKey: process.env.PINECONE_API_KEY,
     pineconeIndex: process.env.PINECONE_INDEX,
+    mongodbUri: process.env.MONGODB_URI,
     port: process.env.PORT || 3000,
 }
 
 // Check if any required key is missing
 // If missing, stop the app immediately with a clear error
-const requiredKeys = ['geminiApiKey', 'pineconeApiKey', 'pineconeIndex']
+
+// Add mongodbUri to required keys
+const requiredKeys = ['geminiApiKey', 'pineconeApiKey', 'pineconeIndex', 'mongodbUri']
 
 for (const key of requiredKeys) {
     if (!env[key]) {
