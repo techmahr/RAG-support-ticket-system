@@ -1,0 +1,4 @@
+id,title,description,category,priority,resolution,resolvedAt
+T-2001,User cannot login after password reset,"Customer reports being locked out after using forgot password link. They reset password but still cannot login.",Authentication,high,"Cleared session cache and regenerated auth token. User advised to clear browser cache.",2024-03-01
+T-2002,Payment failing at checkout,"Customer unable to complete purchase. Card keeps getting declined despite sufficient funds.",Payment,high,"Issue was payment gateway timeout. Asked customer to retry in different browser. Payment succeeded.",2024-03-02
+T-2003,Not receiving email notifications,"User stopped receiving order confirmation emails about a week ago. Checked spam folder but nothing there.",Email,medium,"Found user had accidentally unsubscribed from transactional emails. Re-enabled notifications.",2024-03-03
