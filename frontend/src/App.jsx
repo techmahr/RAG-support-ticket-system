@@ -416,6 +416,103 @@ const styles = {
     fontSize: '13px',
     color: '#374151',
   },
+  // ── Stats Dashboard styles ──
+  statGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(4, 1fr)',
+    gap: '16px',
+    marginBottom: '24px',
+  },
+  statCard: {
+    backgroundColor: '#ffffff',
+    borderRadius: '12px',
+    padding: '20px',
+    boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+    textAlign: 'center',
+  },
+  statValue: {
+    fontSize: '32px',
+    fontWeight: '700',
+    color: '#4f46e5',
+    margin: '0 0 4px 0',
+  },
+  statLabel: {
+    fontSize: '13px',
+    color: '#6b7280',
+    margin: 0,
+  },
+  categoryRow: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '12px',
+    marginBottom: '12px',
+  },
+  categoryLabel: {
+    fontSize: '13px',
+    fontWeight: '500',
+    color: '#374151',
+    minWidth: '120px',
+  },
+  categoryBar: {
+    flex: 1,
+    height: '8px',
+    backgroundColor: '#e5e7eb',
+    borderRadius: '4px',
+    overflow: 'hidden',
+  },
+  categoryFill: {
+    height: '100%',
+    backgroundColor: '#4f46e5',
+    borderRadius: '4px',
+  },
+  categoryValue: {
+    fontSize: '13px',
+    fontWeight: '600',
+    color: '#4f46e5',
+    minWidth: '35px',
+    textAlign: 'right',
+  },
+  categoryCount: {
+    fontSize: '12px',
+    color: '#9ca3af',
+    minWidth: '50px',
+    textAlign: 'right',
+  },
+  recentItem: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: '10px 0',
+    borderBottom: '1px solid #f0f0f0',
+  },
+  recentTitle: {
+    fontSize: '14px',
+    color: '#1a1a2e',
+    fontWeight: '500',
+    flex: 1,
+  },
+  recentMeta: {
+    fontSize: '12px',
+    color: '#9ca3af',
+    marginLeft: '8px',
+  },
+  refreshBtn: {
+    padding: '8px 16px',
+    backgroundColor: '#f3f4f6',
+    border: '1px solid #e5e7eb',
+    borderRadius: '8px',
+    fontSize: '13px',
+    fontWeight: '500',
+    cursor: 'pointer',
+    fontFamily: 'Inter, sans-serif',
+    color: '#374151',
+  },
+  emptyState: {
+    textAlign: 'center',
+    padding: '40px',
+    color: '#9ca3af',
+    fontSize: '14px',
+  },
 }
 
 // ─────────────────────────────────────────
@@ -789,6 +886,184 @@ T-3001,Example ticket title,Detailed description of the issue,Authentication,hig
 }
 
 // ─────────────────────────────────────────
+// Tab 3 — Stats Dashboard
+// ─────────────────────────────────────────
+function StatsTab() {
+  const [data, setData] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+
+  const fetchDashboard = async () => {
+    setLoading(true)
+    setError(null)
+    try {
+      const response = await axios.get(`${API_URL}/api/feedback/dashboard`)
+      setData(response.data.dashboard)
+    } catch (err) {
+      setError('Failed to load dashboard data')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Fetch on first load
+  useState(() => {
+    fetchDashboard()
+  }, [])
+
+  // Format time ago
+  const timeAgo = (dateStr) => {
+    const diff = Math.floor((Date.now() - new Date(dateStr)) / 1000)
+    if (diff < 60) return `${diff}s ago`
+    if (diff < 3600) return `${Math.floor(diff / 60)}m ago`
+    if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`
+    return `${Math.floor(diff / 86400)}d ago`
+  }
+
+  if (loading) {
+    return (
+      <div style={styles.card}>
+        <div style={styles.loading}>📊 Loading dashboard...</div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div style={styles.card}>
+        <div style={styles.error}>⚠️ {error}</div>
+        <button style={styles.refreshBtn} onClick={fetchDashboard}>
+          🔄 Retry
+        </button>
+      </div>
+    )
+  }
+
+  const { overview, ticketsByCategory, feedbackByCategory, recentTickets, recentFeedback } = data
+
+  return (
+    <>
+      {/* Overview Stats */}
+      <div style={styles.statGrid}>
+        {[
+          { value: overview.totalTickets, label: 'Total Tickets Analyzed', icon: '🎫' },
+          { value: `${overview.helpfulPercentage}%`, label: 'Helpful Rate', icon: '👍' },
+          { value: `${overview.avgConfidence}%`, label: 'Avg AI Confidence', icon: '🤖' },
+          { value: overview.totalFeedback, label: 'Total Feedback', icon: '📊' },
+        ].map((stat, i) => (
+          <div key={i} style={styles.statCard}>
+            <p style={{ fontSize: '28px', margin: '0 0 4px 0' }}>{stat.icon}</p>
+            <p style={styles.statValue}>{stat.value}</p>
+            <p style={styles.statLabel}>{stat.label}</p>
+          </div>
+        ))}
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+
+        {/* Tickets by Category */}
+        <div style={styles.card}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <p style={styles.cardTitle}>🎫 Tickets by Category</p>
+          </div>
+          {ticketsByCategory.length === 0 ? (
+            <p style={styles.emptyState}>No tickets yet</p>
+          ) : (
+            ticketsByCategory.map((cat, i) => (
+              <div key={i} style={styles.categoryRow}>
+                <span style={styles.categoryLabel}>{cat._id}</span>
+                <div style={styles.categoryBar}>
+                  <div style={{
+                    ...styles.categoryFill,
+                    width: `${(cat.count / overview.totalTickets) * 100}%`,
+                  }} />
+                </div>
+                <span style={styles.categoryCount}>{cat.count} tickets</span>
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* Feedback by Category */}
+        <div style={styles.card}>
+          <p style={styles.cardTitle}>👍 Helpful Rate by Category</p>
+          {feedbackByCategory.length === 0 ? (
+            <p style={styles.emptyState}>No feedback yet</p>
+          ) : (
+            feedbackByCategory.map((cat, i) => (
+              <div key={i} style={styles.categoryRow}>
+                <span style={styles.categoryLabel}>{cat._id}</span>
+                <div style={styles.categoryBar}>
+                  <div style={{
+                    ...styles.categoryFill,
+                    width: `${cat.helpfulPercentage}%`,
+                    backgroundColor: cat.helpfulPercentage >= 70 ? '#10b981' : '#f59e0b',
+                  }} />
+                </div>
+                <span style={styles.categoryValue}>{cat.helpfulPercentage}%</span>
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* Recent Tickets */}
+        <div style={styles.card}>
+          <p style={styles.cardTitle}>🕐 Recent Tickets</p>
+          {recentTickets.length === 0 ? (
+            <p style={styles.emptyState}>No tickets yet</p>
+          ) : (
+            recentTickets.map((ticket, i) => (
+              <div key={i} style={styles.recentItem}>
+                <div style={{ flex: 1 }}>
+                  <p style={{ ...styles.recentTitle, marginBottom: '2px' }}>
+                    {ticket.title.slice(0, 40)}{ticket.title.length > 40 ? '...' : ''}
+                  </p>
+                  <span style={styles.categoryBadge}>{ticket.category}</span>
+                </div>
+                <div style={{ textAlign: 'right' }}>
+                  <p style={{ ...styles.confidenceValue, margin: '0 0 2px 0' }}>
+                    {ticket.analysis.confidence}%
+                  </p>
+                  <p style={styles.recentMeta}>{timeAgo(ticket.createdAt)}</p>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* Recent Feedback */}
+        <div style={styles.card}>
+          <p style={styles.cardTitle}>💬 Recent Feedback</p>
+          {recentFeedback.length === 0 ? (
+            <p style={styles.emptyState}>No feedback yet — analyze a ticket and rate it!</p>
+          ) : (
+            recentFeedback.map((fb, i) => (
+              <div key={i} style={styles.recentItem}>
+                <span style={{ fontSize: '20px' }}>{fb.helpful ? '👍' : '👎'}</span>
+                <div style={{ flex: 1, marginLeft: '12px' }}>
+                  <p style={{ ...styles.recentTitle, marginBottom: '2px' }}>
+                    {fb.helpful ? 'Marked helpful' : 'Marked not helpful'}
+                  </p>
+                  <span style={styles.categoryBadge}>{fb.category}</span>
+                </div>
+                <p style={styles.recentMeta}>{timeAgo(fb.createdAt)}</p>
+              </div>
+            ))
+          )}
+        </div>
+
+      </div>
+
+      {/* Refresh button */}
+      <div style={{ textAlign: 'center', marginTop: '8px' }}>
+        <button style={styles.refreshBtn} onClick={fetchDashboard}>
+          🔄 Refresh Dashboard
+        </button>
+      </div>
+    </>
+  )
+}
+// ─────────────────────────────────────────
 // Main App
 // ─────────────────────────────────────────
 export default function App() {
@@ -811,6 +1086,7 @@ export default function App() {
           {[
             { id: 'analyze', label: '🤖 Analyze Ticket' },
             { id: 'upload', label: '📁 Upload Tickets' },
+            { id: 'stats', label: '📊 Dashboard' },
           ].map(tab => (
             <button
               key={tab.id}
@@ -826,9 +1102,10 @@ export default function App() {
         </div>
 
         {/* Tab Content */}
+
         {activeTab === 'analyze' && <AnalyzeTab />}
         {activeTab === 'upload' && <UploadTab />}
-
+        {activeTab === 'stats' && <StatsTab />}
       </div>
     </div>
   )

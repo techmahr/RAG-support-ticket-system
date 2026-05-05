@@ -113,4 +113,105 @@ router.get('/stats', async (req, res) => {
     }
 })
 
+// ─────────────────────────────────────────
+// GET /api/feedback/dashboard
+// All stats needed for the dashboard in one call
+// ─────────────────────────────────────────
+router.get('/dashboard', async (req, res) => {
+    try {
+        // Total tickets analyzed
+        const totalTickets = await Ticket.countDocuments()
+
+        // Total feedback
+        const totalFeedback = await Feedback.countDocuments()
+        const helpfulCount = await Feedback.countDocuments({ helpful: true })
+
+        // Average confidence score across all tickets
+        const avgConfidence = await Ticket.aggregate([
+            {
+                $group: {
+                    _id: null,
+                    avgConfidence: { $avg: '$analysis.confidence' },
+                },
+            },
+        ])
+
+        // Tickets by category
+        const ticketsByCategory = await Ticket.aggregate([
+            {
+                $group: {
+                    _id: '$category',
+                    count: { $sum: 1 },
+                    avgConfidence: { $avg: '$analysis.confidence' },
+                },
+            },
+            { $sort: { count: -1 } },
+        ])
+
+        // Feedback by category
+        const feedbackByCategory = await Feedback.aggregate([
+            {
+                $group: {
+                    _id: '$category',
+                    total: { $sum: 1 },
+                    helpful: { $sum: { $cond: ['$helpful', 1, 0] } },
+                },
+            },
+            {
+                $project: {
+                    category: '$_id',
+                    total: 1,
+                    helpful: 1,
+                    helpfulPercentage: {
+                        $round: [
+                            { $multiply: [{ $divide: ['$helpful', '$total'] }, 100] },
+                            0,
+                        ],
+                    },
+                },
+            },
+            { $sort: { total: -1 } },
+        ])
+
+        // Recent tickets (last 5)
+        const recentTickets = await Ticket.find()
+            .sort({ createdAt: -1 })
+            .limit(5)
+            .select('title category priority analysis.confidence createdAt')
+
+        // Recent feedback (last 5)
+        const recentFeedback = await Feedback.find()
+            .sort({ createdAt: -1 })
+            .limit(5)
+            .select('ticketId helpful category createdAt')
+
+        return res.status(200).json({
+            success: true,
+            dashboard: {
+                overview: {
+                    totalTickets,
+                    totalFeedback,
+                    helpfulPercentage: totalFeedback > 0
+                        ? Math.round((helpfulCount / totalFeedback) * 100)
+                        : 0,
+                    avgConfidence: avgConfidence.length > 0
+                        ? Math.round(avgConfidence[0].avgConfidence)
+                        : 0,
+                },
+                ticketsByCategory,
+                feedbackByCategory,
+                recentTickets,
+                recentFeedback,
+            },
+        })
+
+    } catch (error) {
+        console.error('❌ Dashboard error:', error.message)
+        return res.status(500).json({
+            success: false,
+            error: 'Failed to fetch dashboard data',
+        })
+    }
+})
+
 export default router
